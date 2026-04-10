@@ -1,4 +1,4 @@
-import requests
+import requests, re
 
 
 ORANGE = '\033[1m\033[38;5;214m'
@@ -8,8 +8,17 @@ BOLD = '\033[1m'
 END = '\033[0m'
 
 
-def get_data():
-    url = "https://uk.api.just-eat.io/discovery/uk/restaurants/enriched/bypostcode/EC4M7RF"
+def is_uk_postcode(postcode: str) -> bool:
+    pattern = r"^[A-Z]{1,2}[0-9][0-9A-Z]?\s?[0-9][A-Z]{2}$"
+    if re.match(pattern, postcode.strip().upper()):
+        return True
+    raise Exception(f"{FAIL}Invalid UK postcode{END}")
+
+
+def get_data(input_postcode: str) -> dict:
+    is_uk_postcode(input_postcode)        
+    url = "https://uk.api.just-eat.io/discovery/uk/restaurants/enriched/bypostcode/" + input_postcode
+    
     headers = {
         "User-Agent": "Mozilla",
         "Accept": "application/json"
@@ -55,7 +64,10 @@ def get_address(restaurant) -> str:
 
 def main():
     try:
-        data = get_data() # Fetch the restaurant json data from the API
+
+        input_postcode = input(F'{ORANGE}Please enter a UK postcode:\n{END}')
+
+        data = get_data(input_postcode) # Fetch the restaurant json data from the API
 
         # Loop through the first 10 restaurants and print their details
         for index, restaurant in enumerate(data["restaurants"][:10]):
