@@ -22,29 +22,49 @@ def get_data():
         raise Exception(f"Failed to fetch data: {response.status_code}")
 
 
+def get_header_block(index) -> str:
+    return (
+        f"{ORANGE}{'='*50}\n" +
+        f"RESTAURANT #{index+1}".center(50) + "\n" +
+        f"{'='*50}{END}\n"
+    )
+
+
+def get_name(restaurant) -> str:
+    return f"{BOLD}Name       :{END} {restaurant['name']}"
+
+
+def get_cuisines(restaurant) -> str:
+    cuisines = ", ".join([cuisine['name'] for cuisine in restaurant['cuisines']])
+    return f"{BOLD}Cuisines   :{END} {cuisines} "
+
+
+def get_rating(restaurant) -> str:        
+    rating_num = int(restaurant['rating']['starRating'])
+    return f"{BOLD}Rating     :{END} {rating_num} {'★ ' * rating_num}"
+
+
+def get_address(restaurant) -> str:  
+    address = (
+        restaurant['address']['firstLine']  + ', ' +
+        restaurant['address']['city']       + ', ' +
+        restaurant['address']['postalCode']
+    )
+    return f"{BOLD}Address    :{END} {address} \n\n"
+
+
 def main():
     try:
         data = get_data() # Fetch the restaurant json data from the API
 
         # Loop through the first 10 restaurants and print their details
         for index, restaurant in enumerate(data["restaurants"][:10]):
-            cuisines = ", ".join([cuisine['name'] for cuisine in restaurant['cuisines']])
-            rating_num = int(restaurant['rating']['starRating'])
-            address = (
-                restaurant['address']['firstLine']  + ', ' +
-                restaurant['address']['city']       + ', ' +
-                restaurant['address']['postalCode']
-            )
+            print (get_header_block(index))
+            print (get_name(restaurant))
+            print (get_cuisines(restaurant))
+            print (get_rating(restaurant))
+            print (get_address(restaurant))
             
-            print(f"{ORANGE}{'='*55}{END}")
-            print(f"{ORANGE} RESTAURANT #{index+1} {END}".center(55))
-            print(f"{ORANGE}{'='*55}{END}")
-
-            print(f"{BOLD}Name       :{END} {restaurant['name']}")
-            print(f"{BOLD}Cuisines   :{END} {cuisines} ")
-            print(f"{BOLD}Rating     :{END} {rating_num} {'★ ' * rating_num}")
-            print(f"{BOLD}Address    :{END} {address}", end="\n\n\n")
-
     # Handle any exceptions that occur during the process
     except Exception as e:
         print(e)
