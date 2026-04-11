@@ -72,5 +72,4 @@ except KeyboardInterrupt:
 
 # TO-DO:
 # - Add unit tests for the functions
-# - Use classes and OOP approach to make the code more modular and maintainable
 # - Add more error handling (e.g. network errors, API errors, etc.)

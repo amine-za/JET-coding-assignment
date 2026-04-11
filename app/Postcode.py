@@ -6,5 +6,5 @@ class Postcode:
 
     def is_uk_valid(self) -> bool:
         # UK postcode regex pattern
-        pattern = r'^[A-Z]{1,2}\d{1,2}[A-Z]?\s?\d[A-Z]{2}$'
+        pattern = r'^[A-Z]{1,2}\d{1,2}[A-Z]? ?\d[A-Z]{2}$'
         return re.match(pattern, self.value.upper()) is not None
