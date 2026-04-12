@@ -7,9 +7,6 @@ Turmeric = '\033[38;2;246;194;67m'
 BOLD = '\033[1m'
 END = '\033[0m'
 ITALIC = '\033[3m'
-# Berry = '\033[38;2;242;166;176m'
-# Aubergine = '\033[38;2;91;61;91m'
-# WARNING = '\033[93m'
 
 
 class RestaurantView:
@@ -20,7 +17,7 @@ class RestaurantView:
         return f"{BOLD}Cuisines   :{END} {restaurant_obj.cuisines}"
 
     def format_rating(self, restaurant_obj: Restaurant) -> str:
-        return f"{BOLD}Rating     :{END} {restaurant_obj.rating} {'★ ' * int(restaurant_obj.rating)}"
+        return f"{BOLD}Rating     :{END} {restaurant_obj.rating} {'★ ' * int(restaurant_obj.rating)}" 
 
     def format_address(self, restaurant_obj: Restaurant) -> str:  
         return f"{BOLD}Address    :{END} {restaurant_obj.address} \n"

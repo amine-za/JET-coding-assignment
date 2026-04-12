@@ -100,9 +100,9 @@ def test_restaurant_missing_fields():
     """
     Test the handling of all fields in the restaurant data are missing, ensuring that it raises appropriate exceptions or handles defaults.
     """
+    # All fields missing
     incomplete_data = {
         'namew': 'Incomplete Restaurant',
-        # 'cuisines' field is missing
         'ratinggg': {'starRating': 3.0},
         'addressss': {
             'firstLine': '987 Incomplete St',
