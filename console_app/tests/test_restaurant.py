@@ -1,4 +1,4 @@
-from app import Restaurant
+from models import Restaurant
 
 def test_restaurant_initialization():
     """

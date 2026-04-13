@@ -1,4 +1,2 @@
 requests
-pyfiglet
-pytest
 streamlit
