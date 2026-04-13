@@ -1,6 +1,6 @@
-import requests, pyfiglet, shutil
 # import my classes and JET Color palette, got it from: brand-box.marketing.just-eat.com
-from app import Postcode, Restaurant, RestaurantView, JET_Orange, Tomato, Turmeric, BOLD, END
+from models import Postcode, Restaurant, RestaurantView, JET_Orange, Tomato, Turmeric, BOLD, END
+import requests, pyfiglet, shutil
 
 
 def get_data(postcode_value: str) -> dict:
@@ -57,7 +57,7 @@ def main():
                 view = RestaurantView()
                 view.print_details(restaurant_obj, index)
     
-        elif postcode_input.lower() in ["exit", "quit", "\q"]:
+        elif postcode_input.lower().strip() in ["exit", "quit", "\q"]:
             print(f"{Turmeric}\nGoodbye 👋{END}")
             return
 

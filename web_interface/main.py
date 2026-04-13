@@ -1,15 +1,12 @@
-import requests
-from app import Postcode, Restaurant
-import streamlit as st
-# from app.Restaurant import Restaurant
+import sys
+from pathlib import Path
 
-# The exact JET Color palette, got it from: brand-box.marketing.just-eat.com
-JET_Orange = '\033[38;2;255;128;0m'
-Tomato = '\033[38;2;247;94;40m'
-Turmeric = '\033[38;2;246;194;67m'
-BOLD = '\033[1m'
-END = '\033[0m'
-ITALIC = '\033[3m'
+ROOT_DIR = Path(__file__).resolve().parent
+sys.path.insert(0, str(ROOT_DIR))
+
+import requests
+from models import Postcode, Restaurant, JET_Orange, Tomato, Turmeric, BOLD, END
+import streamlit as st
 
 
 class RestaurantWebView:
@@ -38,6 +35,9 @@ class RestaurantWebView:
         st.divider()
 
 
+
+
+
 def get_data(postcode_value: str) -> dict:
     url = "https://uk.api.just-eat.io/discovery/uk/restaurants/enriched/bypostcode/" + postcode_value
     
@@ -54,7 +54,7 @@ def get_data(postcode_value: str) -> dict:
 
 
 # Execution starts here
-st.image("assets/JET-banner.jpg")
+st.image(ROOT_DIR / "assets" / "JET-banner.jpg")
 
 # Put Title and description and Subtitle
 st.markdown("<h1 style='color: rgb(255, 128, 0);'>Restaurant Finder</h1>", unsafe_allow_html=True)
@@ -63,7 +63,7 @@ st.markdown(
     <p style='font-size:16px; margin-bottom: 10px;'>
     This project was built as part of the <a href="https://justeattakeaway.com" target="_blank">Just Eat Takeaway</a> coding assignment to explore their restaurant API and present the data in a clean interface.
     It allows users to search for restaurants using a UK postcode and view key details like cuisines, ratings, and address.
-    You can view the source code on <a href="https://github.com/YOUR_USERNAME/YOUR_REPO" target="_blank">GitHub</a>.
+    You can view the source code on <a href="https://github.com/amine-za/JET-coding-assignment" target="_blank">GitHub</a>.
     </p>
     """,
     unsafe_allow_html=True
@@ -72,7 +72,7 @@ st.markdown("<h3 >Enter your postcode to find the best restaurants near you</h3>
 
 # Input box with placeholder
 st.write("*ps: This service is available only in the UK for UK postcodes. __Example: B263QJ__*")
-postcode_input = st.text_input(label="", placeholder="Enter postcode", label_visibility="collapsed")
+postcode_input = st.text_input(label="Postcode", placeholder="Enter postcode", label_visibility="collapsed")
 
 
 if not postcode_input:

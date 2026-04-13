@@ -1,4 +1,4 @@
-from app import Postcode
+from models import Postcode
 
 
 def test_uk_postcodes():
