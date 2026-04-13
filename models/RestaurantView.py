@@ -17,7 +17,7 @@ class RestaurantView:
         return f"{BOLD}Cuisines   :{END} {restaurant_obj.cuisines}"
 
     def format_rating(self, restaurant_obj: Restaurant) -> str:
-        return f"{BOLD}Rating     :{END} {restaurant_obj.rating} {'★ ' * int(restaurant_obj.rating)}" 
+        return f"{BOLD}Rating     :{END} {restaurant_obj.rating} / 5" 
 
     def format_address(self, restaurant_obj: Restaurant) -> str:  
         return f"{BOLD}Address    :{END} {restaurant_obj.address} \n"

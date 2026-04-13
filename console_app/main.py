@@ -35,7 +35,18 @@ def display_banner() -> None:
 def main():    
     display_banner()
     while True:
-        postcode_input = input(f"{BOLD}\n> Enter a UK postcode (e.g. B263QJ): {END}")
+        try:
+            postcode_input = input(f"{BOLD}\n> Enter a UK postcode (e.g. B263QJ): {END}")
+        except EOFError:
+            print("\nExiting (EOF received)...")
+            break
+        except KeyboardInterrupt:
+            print("\nInterrupted (Ctrl+C). Exiting...")
+            break
+
+        if not postcode_input.strip():
+            print("Invalid UK postcode, please try again.")
+            continue
         postcode_obj = Postcode(postcode_input)
         
         # If the postcode is uk valid, fetch the restaurant json data from the API
@@ -58,7 +69,7 @@ def main():
                 view.print_details(restaurant_obj, index)
     
         elif postcode_input.lower().strip() in ["exit", "quit", "\q"]:
-            print(f"{Turmeric}\nGoodbye 👋{END}")
+            print(f"{Turmeric}\nGoodbye{END}")
             return
 
         else:
@@ -68,7 +79,7 @@ def main():
 try:
     main()
 except KeyboardInterrupt:
-    print(f"{Turmeric}\nGoodbye 👋{END}")
+    print(f"{Turmeric}\nGoodbye{END}")
 
 
 # TO-DO:

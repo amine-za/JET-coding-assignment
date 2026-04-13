@@ -1,11 +1,9 @@
-import sys
 from pathlib import Path
 
-ROOT_DIR = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT_DIR))
+ROOT_DIR = Path(__file__).resolve().parents[1]
 
 import requests
-from models import Postcode, Restaurant, JET_Orange, Tomato, Turmeric, BOLD, END
+from models import Postcode, Restaurant, JET_Orange, Turmeric, BOLD, END
 import streamlit as st
 
 
@@ -33,9 +31,6 @@ class RestaurantWebView:
         st.write(self.format_rating(restaurant_obj))
         st.write(self.format_address(restaurant_obj))
         st.divider()
-
-
-
 
 
 def get_data(postcode_value: str) -> dict:
@@ -100,6 +95,3 @@ if postcode_obj.is_uk_valid():
 
 else:
     st.error("Invalid UK postcode, please try again.")
-
-# Handle any exceptions that occur during the process
-

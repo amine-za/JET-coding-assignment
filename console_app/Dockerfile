@@ -1,5 +1,6 @@
 FROM python:3.10-slim
-# WORKDIR /
+
+WORKDIR /app
 
 # Install the application dependencies
 COPY console_app/requirements.txt .
