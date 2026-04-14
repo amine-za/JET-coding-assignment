@@ -1,9 +1,10 @@
-# import my classes and JET Color palette, got it from: brand-box.marketing.just-eat.com
+# import my classes and JET Color palette that got from: brand-box.marketing.just-eat.com
 from models import Postcode, Restaurant, RestaurantView, JET_Orange, Tomato, Turmeric, BOLD, END
 import requests, pyfiglet, shutil
 
 
-def get_data(postcode_value: str) -> dict:
+# Fetch restaurant data from the Just Eat API for a given postcode
+def fetch_restaurant(postcode_value: str) -> dict:
     url = "https://uk.api.just-eat.io/discovery/uk/restaurants/enriched/bypostcode/" + postcode_value
     
     headers = {
@@ -18,6 +19,7 @@ def get_data(postcode_value: str) -> dict:
         raise Exception(f"{Tomato}Failed to fetch data: {response.status_code}{END}")
 
 
+# Print a terminal banner and the exit instructions.
 def display_banner() -> None:
     text = pyfiglet.figlet_format("RESTAURANT\nFINDER", font="small")
     width = shutil.get_terminal_size().columns
@@ -32,9 +34,26 @@ def display_banner() -> None:
     print(f"Type {Turmeric}EXIT - QUIT - \q{END} anytime to quit the program{END}")
 
 
+# Display the first 10 restaurants returned by the API.
+def display_restaurants(json_data: dict) -> None:
+    view = RestaurantView()
+    restaurants = json_data.get("restaurants", [])
+    
+    if not restaurants: # empty or no results
+        print(f"{Turmeric}No restaurants found for the given postcode.{END}")
+        return
+    
+    # Loop through the first 10 restaurants and print their details
+    for index, restaurant_arg in enumerate(restaurants[:10]):
+        restaurant_obj = Restaurant(restaurant_arg)
+        view.print_details(restaurant_obj, index)
+
+
+# Run the console application loop and handle user input.
 def main():    
     display_banner()
     while True:
+        # Safely read user input and handle termination signals (Ctrl+D / Ctrl+C)
         try:
             postcode_input = input(f"{BOLD}\n> Enter a UK postcode (e.g. B263QJ): {END}")
         except EOFError:
@@ -44,44 +63,32 @@ def main():
             print("\nInterrupted (Ctrl+C). Exiting...")
             break
 
-        postcode_input = postcode_input.strip() #  remove all whitespace characters from the start and end of the input
+        # remove all whitespace characters from the start and end of the input and check if empty
+        postcode_input = postcode_input.strip()
         if not postcode_input:
             print(f"{Tomato}Postcode cannot be empty. Please try again.{END}")
             continue
         postcode_obj = Postcode(postcode_input)
         
-        # If the postcode is uk valid, fetch the restaurant json data from the API
+        # If the postcode is uk valid, fetch the restaurant json data and print
         if postcode_obj.is_uk_valid():
             try:
-                json_data = get_data(postcode_obj.value)
+                json_data = fetch_restaurant(postcode_obj.value)
+                display_restaurants(json_data)
 
-            # Handle any exceptions that occur
-            except Exception as e:
+            except Exception as e: # Handle any exceptions that occur
                 print(e)
 
-            # empty results
-            if not json_data["restaurants"]:
-                print(f"{Turmeric}No restaurants found for the given postcode.{END}")
-            
-            # Loop through the first 10 restaurants and print their details
-            for index, restaurant_arg in enumerate(json_data["restaurants"][:10]):
-                restaurant_obj = Restaurant(restaurant_arg)
-                view = RestaurantView()
-                view.print_details(restaurant_obj, index)
-    
+        # Allow user to exit the application using common exit commands
         elif postcode_input.lower().strip() in ["exit", "quit", "\q"]:
             print(f"{Turmeric}\nGoodbye{END}")
             return
-
         else:
             print(f"{Tomato}Invalid UK postcode, please try again.{END}")
         
 
+# Start the application.
 try:
     main()
 except KeyboardInterrupt:
     print(f"{Turmeric}\nGoodbye{END}")
-
-
-# TO-DO:
-# - Add more error handling (e.g. network errors, API errors, etc.)

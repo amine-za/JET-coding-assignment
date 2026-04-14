@@ -1,3 +1,4 @@
+# Build a Restaurant object from raw API data.
 class Restaurant:
     def __init__(self, restaurant_data: dict):
 

@@ -9,6 +9,7 @@ END = '\033[0m'
 ITALIC = '\033[3m'
 
 
+# Format and print one restaurant details in the console.
 class RestaurantView:
     def format_name(self, restaurant_obj: Restaurant) -> str:
         return f"{BOLD}Name       :{END} {restaurant_obj.name}"

@@ -1,6 +1,5 @@
 JET_ORANGE = \033[38;2;255;128;0m
 Turmeric = \033[38;2;246;194;67m
-SKY_BLUE = \033[38;2;135;206;235m
 RESET = \033[0m
 
 PORT ?= 8501
@@ -25,7 +24,7 @@ help:
 	@echo "  $(Turmeric)make docker-build-web     :  $(RESET)Build the web Docker image"
 	@echo "  $(Turmeric)make docker-run-console   :  $(RESET)Run the console app in Docker"
 	@echo "  $(Turmeric)make docker-run-web       :  $(RESET)Run the web app in Docker"
-	@echo "  $(Turmeric)make docker-stop-web      :  $(RESET)Stop the running web container"
+	@echo "  $(Turmeric)make docker-stop-web      :  $(RESET)Stop and remove the running web container"
 	@echo "  $(Turmeric)make docker-logs-web      :  $(RESET)View logs of the web container"
 	@echo "  $(Turmeric)make clean                :  $(RESET)Remove cache and temporary files"
 
@@ -34,9 +33,15 @@ help:
 #  This ensures reproducibility across machines.
 venv:
 	@if [ ! -d "$(VENV)" ]; then \
-		echo "Creating virtual environment, may take few secs..."; \
-		$(BASE_PYTHON) -m venv $(VENV); \
-		echo "Virtual environment created successfully"; \
+		echo "Creating virtual environment, may take ~10 seconds or more..."; \
+		$(BASE_PYTHON) -m venv $(VENV) 2>/dev/null || { \
+			echo "Error: Python 3 virtual environment support is missing."; \
+			echo "On Debian/Ubuntu, run:"; \
+			echo "  sudo apt update && sudo apt install python3 python3-venv"; \
+			echo "Then run:"; \
+			echo "  make install"; \
+			exit 1; \
+		}; \
 	fi
 
 
@@ -73,7 +78,9 @@ docker-build-web:
 # Used for environment parity across development and production.
 docker-run-console: docker-build-console
 	@echo "Starting console application..."
-	@docker run -it --rm jet-console
+	@docker rm -f jet-console >/dev/null 2>&1 || true
+	@docker run -it --name jet-console --rm jet-console
+
 
 # Builds and runs the web app in Docker:
 # 1- Stops + removes existing container if it exists, and prevents Make from failing with 'true'
@@ -86,9 +93,12 @@ docker-run-web: docker-build-web
 	@xdg-open http://localhost:$(PORT) 2>/dev/null || open http://localhost:$(PORT) 2>/dev/null || echo "Open http://localhost:$(PORT) manually"
 
 docker-stop-web:
+	@echo "Stopping and removing web container (jet-web)..."
 	@docker rm -f jet-web >/dev/null 2>&1 || true
+	@echo "Web container stopped and removed (if it existed)."
 
 docker-logs-web:
+	@echo "Displaying logs for web container (jet-web)..."
 	@docker logs -f jet-web
 
 clean:

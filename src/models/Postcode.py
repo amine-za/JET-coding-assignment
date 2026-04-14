@@ -1,3 +1,4 @@
+# Store a postcode and validate it against a UK postcode pattern
 import re
 
 
