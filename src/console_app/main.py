@@ -44,8 +44,9 @@ def main():
             print("\nInterrupted (Ctrl+C). Exiting...")
             break
 
-        if not postcode_input.strip():
-            print("Invalid UK postcode, please try again.")
+        postcode_input = postcode_input.strip() #  remove all whitespace characters from the start and end of the input
+        if not postcode_input:
+            print(f"{Tomato}Postcode cannot be empty. Please try again.{END}")
             continue
         postcode_obj = Postcode(postcode_input)
         

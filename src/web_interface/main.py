@@ -70,7 +70,7 @@ st.markdown("<h3 >Enter your postcode to find the best restaurants near you</h3>
 st.write("*ps: This service is available only in the UK for UK postcodes. __Example: B263QJ__*")
 postcode_input = st.text_input(label="Postcode", placeholder="Enter postcode", label_visibility="collapsed")
 
-
+postcode_input = postcode_input.strip() #  remove all whitespace characters from the start and end of the input
 if not postcode_input:
     st.stop()
 
