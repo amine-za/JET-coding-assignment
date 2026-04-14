@@ -1,6 +1,18 @@
-# python virtual environment
+# virtual environment
 venv/
+.env/
 
 # python cache
 __pycache__/
 *.pyc
+
+*.log
+
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Docker leftovers
+*.tar
+*.log

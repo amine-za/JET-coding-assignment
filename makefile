@@ -3,38 +3,20 @@ Turmeric = \033[38;2;246;194;67m
 SKY_BLUE = \033[38;2;135;206;235m
 RESET = \033[0m
 
-# cli-app:
-# 	@echo "Building Docker image..."
-# 	@docker build -q -f console_app/Dockerfile -t cli-app . > /dev/null
-	
-# 	@echo "Starting console app..."
-# 	@docker run -it --rm cli-app
+PORT ?= 8501
+BASE_PYTHON ?= python3
+VENV = venv
+PYTHON = $(VENV)/bin/python
+PIP = $(VENV)/bin/pip
 
-# web-app:
-# 	@echo "Building Docker image..."
-# 	@docker build -q -f web_interface/Dockerfile -t web-app . > /dev/null
 
-# 	@echo "Cleaning up old container that use port 8501 (if any)..."
-# 	@docker ps -q --filter "publish=8501" | xargs -r docker stop > /dev/null
-# 	@docker ps -aq --filter "publish=8501" | xargs -r docker rm > /dev/null
-
-# 	@echo "Starting web app..."
-# 	@docker run -d -p 8501:8501 web-interface:latest > /dev/null
-
-# 	@echo "Opening app in browser..."
-# 	@xdg-open http://localhost:8501 > /dev/null
-
-# 	@echo "Web app is running at http://localhost:8501"
-
-.PHONY: help install test run-console run-web docker-build-console docker-build-web docker-run-console docker-run-web clean
+.PHONY: help install test run-console run-web docker-build-console docker-build-web docker-run-console docker-run-web docker-stop-web docker-logs-web clean
 
 help:
 	@echo "$(JET_ORANGE)"
 	@echo "╔═══════════════════════════════════════════╗"
 	@echo "║ JET RESTAURANT FINDER - Makefile Commands ║"
-	@echo "╚═══════════════════════════════════════════╝"
-	@echo "$(RESET)"
-	@echo ""
+	@echo "╚═══════════════════════════════════════════╝$(RESET)"
 	@echo "  $(Turmeric)make install              :  $(RESET)Install Python dependencies"
 	@echo "  $(Turmeric)make test                 :  $(RESET)Run tests"
 	@echo "  $(Turmeric)make run-console          :  $(RESET)Run the console app locally"
@@ -43,36 +25,72 @@ help:
 	@echo "  $(Turmeric)make docker-build-web     :  $(RESET)Build the web Docker image"
 	@echo "  $(Turmeric)make docker-run-console   :  $(RESET)Run the console app in Docker"
 	@echo "  $(Turmeric)make docker-run-web       :  $(RESET)Run the web app in Docker"
+	@echo "  $(Turmeric)make docker-stop-web      :  $(RESET)Stop the running web container"
+	@echo "  $(Turmeric)make docker-logs-web      :  $(RESET)View logs of the web container"
 	@echo "  $(Turmeric)make clean                :  $(RESET)Remove cache and temporary files"
 
-install:
-	pip install -r console_app/requirements.txt
-	pip install -r web_interface/requirements.txt
 
-test:
-	@PYTHONPATH=. pytest
+#  Creates a local Python environment used for all development commands.
+#  This ensures reproducibility across machines.
+venv:
+	@if [ ! -d "$(VENV)" ]; then \
+		echo "Creating virtual environment..."; \
+		$(BASE_PYTHON) -m venv $(VENV); \
+	fi
 
-run-console:
-	PYTHONPATH=. python3 console_app/main.py
 
-run-web:
-	PYTHONPATH=. streamlit run web_interface/main.py
+# Installs both console and web application requirements into the venv.
+# Must be executed before running any application or tests.
+install: venv
+	@$(PIP) install -r src/console_app/requirements.txt > /dev/null
+	@$(PIP) install -r src/web_interface/requirements.txt > /dev/null
+
+test: install
+	@PYTHONPATH=src $(PYTHON) -m pytest
+
+run-console: install
+	@PYTHONPATH=src $(PYTHON) src/console_app/main.py
+
+run-web: install
+	@echo "Starting Streamlit app on http://localhost:$(PORT)..."
+	@PYTHONPATH=src $(PYTHON) -m streamlit run src/web_interface/main.py
 
 docker-build-console:
-	docker build -f console_app/Dockerfile -t jet-console .
+	@echo "Building console application Docker image..."
+	@docker build -f src/console_app/Dockerfile -t jet-console . 
+	@echo "Console application Docker image built successfully."
 
 docker-build-web:
-	docker build -f web_interface/Dockerfile -t jet-web .
+	@echo "Building web interface Docker image..."
+	@docker build -f src/web_interface/Dockerfile -t jet-web . 
+	@echo "Web interface Docker image built successfully."
 
-docker-run-console:
-	docker run -it --rm jet-console
 
-docker-run-web:
+# Builds and runs containerized versions of the console.
+# Used for environment parity across development and production.
+docker-run-console: docker-build-console
+	@echo "Starting console application..."
+	@docker run -it --rm jet-console
+
+# Builds and runs the web app in Docker:
+# 1- Stops + removes existing container if it exists, and prevents Make from failing with 'true'
+# 2- Running the container with detached mode (background) with fixed containers name for easy management, and with port mapping 
+# 3- Opens the app in the default browser (Linux/macOS) or prints the URL if not supported
+docker-run-web: docker-build-web
+	@echo "Starting web interface on http://localhost:$(PORT)..."
 	@docker rm -f jet-web >/dev/null 2>&1 || true
-	docker run --name jet-web --rm -p 8501:8501 jet-web
-# 	xdg-open http://localhost:8501
+	@docker run -d --name jet-web -p $(PORT):8501 jet-web
+	@xdg-open http://localhost:$(PORT) 2>/dev/null || open http://localhost:$(PORT) 2>/dev/null || echo "Open http://localhost:$(PORT) manually"
+
+docker-stop-web:
+	@docker rm -f jet-web >/dev/null 2>&1 || true
+
+docker-logs-web:
+	@docker logs -f jet-web
 
 clean:
-	find . -type d -name "__pycache__" -exec rm -rf {} +
-	find . -type d -name ".pytest_cache" -exec rm -rf {} +
-	find . -type f -name "*.pyc" -delete
+	@echo "Cleaning up cache and temporary files..."
+	@find . -type d -name "__pycache__" -exec rm -rf {} +
+	@find . -type d -name ".pytest_cache" -exec rm -rf {} +
+	@find . -type f -name "*.pyc" -delete
+	@echo "Done."

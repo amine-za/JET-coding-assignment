@@ -1,9 +1,10 @@
 from pathlib import Path
+import logging
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
 
 import requests
-from models import Postcode, Restaurant, JET_Orange, Turmeric, BOLD, END
+from models import Postcode, Restaurant
 import streamlit as st
 
 
@@ -34,6 +35,7 @@ class RestaurantWebView:
 
 
 def get_data(postcode_value: str) -> dict:
+    logging.info(f"Fetching data for {postcode_value}")
     url = "https://uk.api.just-eat.io/discovery/uk/restaurants/enriched/bypostcode/" + postcode_value
     
     headers = {
@@ -48,8 +50,7 @@ def get_data(postcode_value: str) -> dict:
         raise Exception(f"Failed to fetch data: {response.status_code} Please try again.")
 
 
-# Execution starts here
-st.image(ROOT_DIR / "assets" / "JET-banner.jpg")
+st.image(ROOT_DIR / "web_interface" / "assets" / "JET-banner.jpg")
 
 # Put Title and description and Subtitle
 st.markdown("<h1 style='color: rgb(255, 128, 0);'>Restaurant Finder</h1>", unsafe_allow_html=True)
@@ -77,11 +78,12 @@ postcode_obj = Postcode(postcode_input)
 
 # If the postcode is uk valid, fetch the restaurant json data from the API
 if postcode_obj.is_uk_valid():
-    try:
-        json_data = get_data(postcode_obj.value)
-    except Exception as e:
-        st.error(str(e))
-        st.stop()
+    with st.spinner("Fetching Restaurants..."):
+        try:
+            json_data = get_data(postcode_obj.value)
+        except Exception as e:
+            st.error(str(e))
+            st.stop()
 
     # empty results
     if not json_data["restaurants"]:
