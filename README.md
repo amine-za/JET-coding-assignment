@@ -139,8 +139,9 @@ PYTHONPATH=src python3 -m pytest src/console_app/tests
 
 ## <span style="color:#FF8000"> Assumptions and Limitations
 ####  <span style="color:#F6C243"> Assumptions
-- Features such as sorting or filtering are not required for this scope.
-- The app currently assumes that each restaurant item contains the expected fields. I focused on the core requirements, additional checks for missing fields are a small improvement that could be added later.
+I tried to keep assumptions to a minimum and used the assignment brief and API response as the main source of truth. When something is unclear, I would rather ask for clarification than make a risky assumption.
+- Features such as sorting or filtering were not part of the required scope, as they were not mentioned in the brief.
+- The app focuses on the required restaurant fields from the API response. Extra checks for missing fields could be added later as an improvement.
 
 
 ####  <span style="color:#F6C243"> Limitations
