@@ -91,7 +91,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
 pip install -r src/web_interface/requirements.txt
-python3 -m streamlit run src/web_interface/main.py
+PYTHONPATH=src python3 -m streamlit run src/web_interface/main.py
 ```
 then open http://localhost:8501
 
@@ -114,7 +114,7 @@ python3 -m venv venv
 source venv/bin/activate
 pip install --upgrade pip
 pip install -r src/console_app/requirements.txt
-python3 src/console_app/main.py
+PYTHONPATH=src python3 src/console_app/main.py
 ```
 
 
